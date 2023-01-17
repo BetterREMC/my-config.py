@@ -32,6 +32,7 @@ from libqtile.utils import guess_terminal
 import arcobattery
 
 mod = "mod4"
+mod1 = "alt"
 terminal = guess_terminal()
 
 keys = [
@@ -59,6 +60,8 @@ keys = [
     #Custrom keybindings
     Key([mod], "b", lazy.spawn('brave')),
     Key([mod], "f", lazy.spawn('firefox')),
+   #Key([mod], "m" lazy.spawn('rofi -show drun')),
+    
     #Audio
    Key([mod], 'F3', lazy.spawn('pulseaudio-ctl up 5')),
    Key([mod], 'F2', lazy.spawn('pulseaudio-ctl down 5')),
@@ -83,7 +86,7 @@ keys = [
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"), 
 ]
 
 groups = [Group(i) for i in "123456789"]
@@ -111,15 +114,25 @@ for i in groups:
             #     desc="move focused window to group {}".format(i.name)),
         ]
     )
+def init_layout_theme():
+    return {"margin":5,
+            "border_width":2,
+            "border_focus": "#5e81ac",
+            "border-normal": "#4c566a"
+            }
+layout_theme = init_layout_theme()
+
+
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+     layout.Bsp(**layout_theme),
+        #layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-     layout.Bsp(),
-    layout.Matrix(),
-    layout.MonadTall(),
+    
+    #layout.Matrix(**layout_theme),
+    #layout.MonadTall(**layout_theme),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -127,6 +140,23 @@ layouts = [
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
+
+#colors for the bar
+def init_colors():
+        return [["#2F343F", "#2F343F"], # color 0
+                            ["#2F343F", "#2F343F"], # color 1
+                            ["#c0c5ce", "#c0c5ce"], # color 2
+                            ["#fba922", "#fba922"], # color 3
+                            ["#3384d0", "#3384d0"], # color 4
+                            ["#f3f4f5", "#f3f4f5"], # color 5
+                            ["#cd1f3f", "#cd1f3f"], # color 6
+                            ["#62FF00", "#62FF00"], # color 7
+                            ["#6790eb", "#6790eb"], # color 8
+                            ["#a9a9a9", "#a9a9a9"]] # color 9
+
+
+colors = init_colors()
+
 
 widget_defaults = dict(
     font="sans",
@@ -137,9 +167,15 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
+        wallpaper='~/Downloads/wallpapers/baki.jpg',
+                wallpaper_mode='fill',
         top=bar.Bar(
             [
-                widget.CurrentLayout(),
+             widget.Image(
+                  filename = '~/.config/qtile/icons/python.png', 
+                  scale = 'False',
+                  margin_x = 8,                                                                                mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(file_launcher2)}                               ),
+                widget.CurrentLayout(foreground = colors[2], background = colors[1]),
                 widget.GroupBox(),
                 widget.Prompt(),
                 widget.WindowName(),
@@ -157,30 +193,40 @@ screens = [
                 widget.Sep(
                     linewidth = 1,
                     padding = 10,
+                    foreground=colors[2],
+                    background = colors[1]
                     ),
-               widget.CPUGraph(
+            widget.CPUGraph(
                 width=35,
-                    border_width=1,
-                  frequency=5,
-                    line_width=1,
-                    ),
+                 border_width=1,
+                 frequency=5,
+                 line_width=1,
+                 foreground = colors[5],
+                 background = colors[1]
+                 ),
             widget.Sep(
                 linewidth = 1,
                 padding = 10,
+                foreground = colors[5],
+                background = colors[1]
                 ),
-               widget.Clock(format=" %a %I:%M %p", frontsize='4'),
+               widget.Clock(format=" %a %I:%M %p", frontsize='4',foreground = colors[5], background = colors[1]),
                widget.Sep(
                    linewidth = 1,
                    padding = 10,
+                 foreground = colors[5],
+                    background = colors[1]
                    ),
                widget.Battery(
                    update_interval = 10,
                    fontsize = 12,
+                    foreground = colors[5],
+                    background = colors[1]
                    ),
             ],
             24,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            #border_color=[background = colors[1]]  # Borders are magenta
         ),
     ),
 ]
@@ -212,6 +258,12 @@ floating_layout = layout.Floating(
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True
+
+#Programms to start on log in
+#@hook.subscribe.startup_once
+#def autostart ():
+ #       home = os.path.expanduser('~/.config/qtile/autostart.sh')
+  #          subprocess.call([home])
 
 
 # If things like steam games want to auto-minimize themselves when losing
